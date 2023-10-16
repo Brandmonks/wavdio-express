@@ -170,7 +170,7 @@ async function connectDB (host = 'localhost', port = 27017, dbName = 'wAVdioDB')
   }
 
   console.log(`Connect to MongoDB ${uri}`)
-  return mongoose.connect(uri, {useMongoClient: true})
+  return mongoose.connect(uri, {useNewUrlParser: true})
 }
 
 
