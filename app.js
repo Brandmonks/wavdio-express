@@ -159,10 +159,10 @@ async function connectDB (host = 'localhost', port = 27017, dbName = 'wAVdioDB')
 
   let uri;
   if (dbUser === null && dbPassword === null) {
-    uri = `mongodb://${host}:${port}/${dbName}`
+    uri = `mongodb://${host}:${port}/${dbName}?authSource=admin`
 
   } else if (dbUser !== null && dbPassword !== null) {
-    uri = `mongodb://${dbUser}:${dbPassword}@${host}:${port}/${dbName}`
+    uri = `mongodb://${dbUser}:${dbPassword}@${host}:${port}/${dbName}?authSource=admin`
 
   } else {
     console.error('Error in config.json. Must provide both user and password, or neither.');
