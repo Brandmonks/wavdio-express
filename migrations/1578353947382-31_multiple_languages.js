@@ -8,7 +8,7 @@ const MongoClient = mongodb.MongoClient
 // Mongo Connection URI
 //
 
-const dbHost = 'localhost'
+const dbHost = config['db-host']
 const dbPort = 27017
 const dbName = config['db-name']
 const dbUser = config['db-user']
@@ -16,10 +16,10 @@ const dbPassword = config['db-password']
 
 let uri;
 if (dbUser === null && dbPassword === null) {
-  uri = `mongodb://${dbHost}:${dbPort}/${dbName}`
+  uri = `mongodb://${dbHost}:${dbPort}/${dbName}?authSource=admin`
 
 } else if (dbUser !== null && dbPassword !== null) {
-  uri = `mongodb://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`
+  uri = `mongodb://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}?authSource=admin`
 
 } else {
   console.error('Error in config.json. Must provide both user and password, or neither.');
@@ -34,14 +34,14 @@ module.exports.up = async function () {
   console.log('Upgrading to 31_multiple_languages')
 
   try {
-    const db = await MongoClient.connect(uri, {useUnifiedTopology: true})
+    const db = await MongoClient.connect(uri, { useUnifiedTopology: true })
     const dbo = db.db(dbName)
 
     /* Create settings collection */
 
     await dbo.createCollection('settings')
 
-    const defaultSettings = {activeLangs: {de: true, en: true, es: true, fr: true}}
+    const defaultSettings = { activeLangs: { de: true, en: true, es: true, fr: true } }
     await dbo.collection('settings').insertOne(defaultSettings)
 
     /* Create museum contents */
@@ -59,7 +59,7 @@ module.exports.up = async function () {
 
     // Create remaining, missing languages
     for (let lang of langs) {
-      await dbo.collection('museums').updateOne({}, {$push: {contents: {lang: lang}}})
+      await dbo.collection('museums').updateOne({}, { $push: { contents: { lang: lang } } })
     }
 
     /* Create exposition contents */
@@ -80,7 +80,7 @@ module.exports.up = async function () {
       // Create remaining, missing languages
       for (let lang of langs) {
         await dbo.collection('expositions')
-          .updateOne({_id: exposition._id}, {$push: {contents: {lang: lang}}})
+          .updateOne({ _id: exposition._id }, { $push: { contents: { lang: lang } } })
       }
     }
 
@@ -102,7 +102,7 @@ module.exports.up = async function () {
       // Create remaining, missing languages
       for (let lang of langs) {
         await dbo.collection('exhibits')
-          .updateOne({_id: exhibit._id}, {$push: {contents: {lang: lang}}})
+          .updateOne({ _id: exhibit._id }, { $push: { contents: { lang: lang } } })
       }
     }
 
@@ -123,7 +123,7 @@ module.exports.down = async function () {
   console.log('Downgrading from 31_multiple_languages')
 
   try {
-    const db = await MongoClient.connect(uri, {useUnifiedTopology: true})
+    const db = await MongoClient.connect(uri, { useUnifiedTopology: true })
     const dbo = db.db(dbName)
 
     /* Delete settings collection */
@@ -133,19 +133,19 @@ module.exports.down = async function () {
     /* Delete Spanish and French museum contents */
 
     for (let lang of ['es', 'fr']) {
-      await dbo.collection('museums').updateOne({}, {$pull: {contents: {lang: lang}}})
+      await dbo.collection('museums').updateOne({}, { $pull: { contents: { lang: lang } } })
     }
 
     /* Delete Spanish and French exposition contents */
 
     for (let lang of ['es', 'fr']) {
-      await dbo.collection('expositions').updateMany({}, {$pull: {contents: {lang: lang}}})
+      await dbo.collection('expositions').updateMany({}, { $pull: { contents: { lang: lang } } })
     }
 
     /* Delete Spanish and French exhibit contents */
 
     for (let lang of ['es', 'fr']) {
-      await dbo.collection('exhibits').updateMany({}, {$pull: {contents: {lang: lang}}})
+      await dbo.collection('exhibits').updateMany({}, { $pull: { contents: { lang: lang } } })
     }
 
     /* */

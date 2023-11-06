@@ -14,5 +14,5 @@ ENV MONGO_PASSWORD=example
 WORKDIR /app
 COPY --from=0 /app .
 RUN rm config.json
-CMD echo "{\"db-name\": \"wavdio\", \"db-user\": \"$MONGO_USER\", \"db-password\": \"$MONGO_PASSWORD\"}" > config.json && node ./bin/server.js --db-host=$MONGO_HOST
+CMD echo "{\"db-host\": \"db\", \"db-name\": \"wavdio\", \"db-user\": \"$MONGO_USER\", \"db-password\": \"$MONGO_PASSWORD\"}" > config.json && node ./bin/server.js --db-host=$MONGO_HOST
 EXPOSE 3000
