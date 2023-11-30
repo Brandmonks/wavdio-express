@@ -8,7 +8,7 @@ const MongoClient = mongodb.MongoClient
 // Mongo Connection URI
 //
 
-const dbHost = 'localhost'
+const dbHost = config['db-host']
 const dbPort = 27017
 const dbName = config['db-name']
 const dbUser = config['db-user']
@@ -16,10 +16,10 @@ const dbPassword = config['db-password']
 
 let uri;
 if (dbUser === null && dbPassword === null) {
-  uri = `mongodb://${dbHost}:${dbPort}/${dbName}`
+  uri = `mongodb://${dbHost}:${dbPort}/${dbName}?authSource=admin`
 
 } else if (dbUser !== null && dbPassword !== null) {
-  uri = `mongodb://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`
+  uri = `mongodb://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}?authSource=admin`
 
 } else {
   console.error('Error in config.json. Must provide both user and password, or neither.');
@@ -40,9 +40,9 @@ module.exports.up = async function () {
     const museum = await dbo.collection('museums').findOne({})
     const logo = museum.logo
 
-    await dbo.collection('museums').updateOne({}, {$unset: {'logo': null}})
-    await dbo.collection('museums').updateOne({}, {$set: {'contents.$[].logo': null}})
-    await dbo.collection('museums').updateOne({}, {$set: {'contents.$[].image': logo}})
+    await dbo.collection('museums').updateOne({}, { $unset: { 'logo': null } })
+    await dbo.collection('museums').updateOne({}, { $set: { 'contents.$[].logo': null } })
+    await dbo.collection('museums').updateOne({}, { $set: { 'contents.$[].image': logo } })
 
     await db.close()
 
@@ -62,9 +62,9 @@ module.exports.down = async function () {
     const db = await MongoClient.connect(uri)
     const dbo = db.db(dbName)
 
-    await dbo.collection('museums').updateOne({}, {$set: {'logo': null}})
-    await dbo.collection('museums').updateOne({}, {$unset: {'contents.$[].logo': null}})
-    await dbo.collection('museums').updateOne({}, {$unset: {'contents.$[].image': null}})
+    await dbo.collection('museums').updateOne({}, { $set: { 'logo': null } })
+    await dbo.collection('museums').updateOne({}, { $unset: { 'contents.$[].logo': null } })
+    await dbo.collection('museums').updateOne({}, { $unset: { 'contents.$[].image': null } })
 
     await db.close()
 

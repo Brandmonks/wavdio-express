@@ -101,7 +101,7 @@ router.route('/exhibit/:exhibit_id')
             old_active = exhibit.active;
             delete body._id;
           }
-        }).then(
+        }).clone().then(
           function () {
             exhibit.find({parent: body.parent, code: body.code, active: true}, (error, exhibits) => {
               if (error) {
@@ -126,8 +126,8 @@ router.route('/exhibit/:exhibit_id')
                 });
               }
             });
-          }).catch(function () {
-          console.log("Unbekannter Fehler");
+          }).catch(function (error) {
+          console.log("Unbekannter Fehler", error);
         });
       }
     })
